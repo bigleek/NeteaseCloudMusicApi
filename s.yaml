@@ -1,49 +1,49 @@
-edition: 1.0.0
+# ------------------------------------
+#   官方手册: https://manual.serverless-devs.com/user-guide/aliyun/#fc3
+#   有问题快来钉钉群问一下吧：33947367
+# ------------------------------------
+
+edition: 3.0.0
 name: my-framework-app
 access: default
-services:
-  framework:
-    component: fc
+vars:
+  region: cn-hangzhou
+  functionName: music
+resources:
+  start_express:
+    component: fc3
+    actions:
+      pre-deploy:
+        - run: export PATH=/usr/local/versions/node/v20.8.1/bin:$PATH && npm install --production
+          path: ./code
     props:
-      region: cn-hangzhou
-      service:
-        name: serverless-devs-application
-      function:
-        name: undefined-45qm
-        description: Initialize
-        runtime: custom
-        environmentVariables:
-          PATH: >-
-            /opt/nodejs16/bin:/usr/local/bin/apache-maven/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/ruby/bin:/opt/bin:/code:/code/bin
-          NODE_PATH: /opt/nodejs/node_modules
-          LD_LIBRARY_PATH: >-
-            /code:/code/lib:/usr/local/lib:/opt/lib:/opt/php8.1/lib:/opt/php8.0/lib:/opt/php7.2/lib
-        layers:
-          - acs:fc:cn-hangzhou:official:layers/Nodejs16/versions/2
-        memorySize: 128
-        cpu: 0.05
-        timeout: 60
-        codeUri: ./
-        diskSize: 512
-        caPort: 3000
-        customRuntimeConfig:
-          command:
-            - npm
-          args:
-            - install
-            - '&&'
-            - npm
-            - run
-            - start
+      region: ${vars.region}
+      description: Serverless Devs Web Framework Function
+      runtime: custom.debian10
+      timeout: 60
+      cpu: 0.05
+      memorySize: 128
+      diskSize: 512
+      instanceConcurrency: 100
+      layers:
+        - acs:fc:${vars.region}:official:layers/Nodejs20/versions/1
+      environmentVariables:
+        PATH: >-
+          /opt/nodejs20/bin:/usr/local/bin/apache-maven/bin:/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/ruby/bin
+      customRuntimeConfig:
+        command:
+          - node
+          - app.js
+        port: 9000
+      functionName: ${vars.functionName}
+      code: ./code
       triggers:
-        - name: httpTrigger
-          type: http
-          config:
-            authType: anonymous
+        - triggerName: httpTrigger
+          triggerType: http
+          triggerConfig:
             methods:
               - GET
               - POST
               - PUT
               - DELETE
-              - HEAD
-              - PATCH
+            authType: anonymous
