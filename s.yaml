@@ -36,7 +36,7 @@ resources:
           - app.js
         port: 9000
       functionName: ${vars.functionName}
-      code: ./code
+      code: /code
       triggers:
         - triggerName: httpTrigger
           triggerType: http
